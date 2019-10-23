@@ -88,8 +88,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             }break;
 
-
-
             case "/stopParse":{
                 sendMsgInChat(msg,STOP_PARSE_TEXT);
 
@@ -97,12 +95,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 runParse = false;
             }break;
 
-
-
             case "/addTags":{
                 sendMsgInChat(msg, ADD_TAGS_TEXT);
             }break;
-
 
             case "/outTags":{
                 if(this.tags.length() > 2)
@@ -157,16 +152,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true){
+                while (runParse){
                     try {
                         parseNews.parsePage();
+
+                        if(parseNews.searchNews(tags)){
+                            sendMsgInGroup(parseNews.getNews());
+                            numberPublication++;
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
-
-                    if(parseNews.searchNews(tags)){
-                        sendMsgInGroup(parseNews.getNews());
-                        numberPublication++;
                     }
 
                     try {
@@ -175,7 +170,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
 
-                    if(!runParse) break;
                 }
             }
         });

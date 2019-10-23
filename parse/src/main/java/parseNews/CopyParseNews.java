@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public interface CopyParseNews {
     void parseArchive();
-    boolean searchNews();
+    boolean searchNews() throws IOException;
     String getNews();
     String getTitle();
     String getPreviewText();

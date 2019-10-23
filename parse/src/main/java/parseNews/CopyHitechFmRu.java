@@ -26,62 +26,47 @@ public final class CopyHitechFmRu implements CopyParseNews {
     private String previewText = null;
     private String linkToNews = null;
 
-    private String tags;
-
     public CopyHitechFmRu(){
         parseArchive();
     }
 
-    public CopyHitechFmRu(String tags){
-        parseArchive();
-        this.tags = tags;
-    }
-
-
     public void parseArchive() {
-
         try {
             pageArchive = Jsoup.parse(new URL(urlArchive), TIMEOUT);
-            titlePublishedNews = selectTitleFirstNews();
+            titlePublishedNews = selectTitleFirstNewsInArchive();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void parsePageNews() {
-        try {
+    private void parsePageNews() throws IOException {
             pageNews = Jsoup.parse(new URL(linkToNews), TIMEOUT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 
-    public boolean searchNews() {
-        String titleAddedNews = selectTitleFirstNews();
+    public boolean searchNews() throws IOException {
+        String titleNews = selectTitleFirstNewsInArchive();
 
-        if(!titleAddedNews.equals(titlePublishedNews)) {
-            titlePublishedNews = titleAddedNews;
+        if(!titleNews.equals(titlePublishedNews)) {
+                parsePageNews();
+                return true;
 
-            linkToNews = selectLinkToNews();
+        } else{
+            return false; }
+    }
 
-            parsePageNews();
+    public News getNews1(){
+        News news = new News();
 
-            title = selectTitle();
-            previewText = selectPreviewText();
+        news.setTitle(selectTitle());
+        news.setPreviewText(selectPreviewText());
+        news.setLinkToNews(selectLinkToNews());
 
-            if(checkAvaililabilityTags()){
-                if(searchTagsInArticle()) {
-                    return true;
-                } else { return false;}
-
-            } else{ return false;}
-
-        } else{ return false; }
+        return news;
     }
 
     public boolean copySearchNews(){
-        String titleAddedNews = selectTitleFirstNews();
+        String titleAddedNews = selectTitleFirstNewsInArchive();
 
         if(titleAddedNews.equals(titlePublishedNews)){
             return false;
@@ -90,14 +75,14 @@ public final class CopyHitechFmRu implements CopyParseNews {
         }
     }
 
-    private boolean checkAvaililabilityTags(){
+    private boolean checkAvailabilityTags(){
         if(tags.length() > 1 ){
             return true;
         }
         return false;
     }
 
-    private boolean searchTagsInArticle(){
+    private boolean searchTagsInNews(){
         for(String tag:tags.split("\\s")){
             if(title.contains(tag) || previewText.contains(tag)){
                 return true;
@@ -110,7 +95,7 @@ public final class CopyHitechFmRu implements CopyParseNews {
 
 
 
-    private String selectTitleFirstNews(){
+    private String selectTitleFirstNewsInArchive(){
         return pageArchive.selectFirst(FIRST_NEWS_CSS_QUERY).text();
     }
 
