@@ -24,7 +24,6 @@ assertNotSame([String], expected, actual) – проверяет, что обе 
 
 import org.junit.Before;
 import org.junit.Test;
-import parseNews.CopyHitechFmRu;
 import parseNews.HitechFmRu;
 
 import java.io.IOException;
@@ -32,17 +31,25 @@ import java.io.IOException;
 public class HitechFmTest {
 
     @Before
-    public void parsePage(){
-        CopyHitechFmRu hitechFmRu = new CopyHitechFmRu();
+    public void init() {
+        HitechFmRu hitechFmRu = null;
+        String emptyTags = "";
+        String nullTags = null;
+        String tags = "выа ывап вап ыва рпыв ры варывапр фывап цыва рп ывар";
     }
 
     @Test
-    public boolean searchNews(){
+    public void parseArchiveTest() {
 
     }
 
     @Test
-    public boolean searchNews(String tags){
+    public void searchNewsTest() {
+
+    }
+
+    @Test
+    public void searchNewsTest(String tags) {
 
     }
 }

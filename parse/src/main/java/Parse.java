@@ -1,6 +1,3 @@
-import parseNews.HitechFmRu;
-import parseNews.HitechNewsRu;
-
 import java.io.IOException;
 
 public class Parse {

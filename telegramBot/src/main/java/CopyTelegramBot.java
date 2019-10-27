@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
-import parseNews.CopyHitechFmRu;
+import parseNews.HitechFmRu;
 import parseNews.CopyParseNews;
 
 public class CopyTelegramBot extends TelegramLongPollingBot {
@@ -78,7 +78,7 @@ public class CopyTelegramBot extends TelegramLongPollingBot {
                 }
                 sendMsgInChat(msg, RUN_PARSE_TEXT);
 
-                CopyHitechFmRu hitechFmRu = new CopyHitechFmRu();
+                HitechFmRu hitechFmRu = new HitechFmRu();
 
                 runParse(hitechFmRu);
             }break;

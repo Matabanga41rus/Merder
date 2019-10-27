@@ -1,15 +1,16 @@
-
 package parseNews;
 
+import com.sun.istack.internal.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.net.URL;
 
-public final class HitechFmRu implements ParseNews {
+import static com.sun.jmx.snmp.ThreadContext.contains;
+
+public final class HitechFmRu {
     private final String urlArchive = "https://hightech.fm/archive";
-    private final String url = "https://hightech.fm";
     private final int TIMEOUT = 10*1000;
 
     private final String FIRST_NEWS_CSS_QUERY = "div.archive--wrap ul.data-archive li a";
@@ -23,101 +24,77 @@ public final class HitechFmRu implements ParseNews {
 
     private String titlePublishedNews = null;
 
-    private String title = null;
-    private String previewText = null;
-    private String linkToNews = null;
 
-    public HitechFmRu(){
-        try {
-            parsePage();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public HitechFmRu() throws IOException {
+        parseArchive();
+        titlePublishedNews = selectTitleFirstNewsInArchive();
     }
 
-
-    public void parsePage() throws IOException {
+    public void parseArchive() throws IOException {
         pageArchive = Jsoup.parse(new URL(urlArchive), TIMEOUT);
-        titlePublishedNews = selectTitleFirstNews();
     }
 
-    private void parsePageNews() throws IOException{
-        pageNews = Jsoup.parse(new URL(linkToNews), TIMEOUT);
+    public void parsePageNews() throws IOException {
+        pageNews = Jsoup.parse(new URL(selectLinkToNews()), TIMEOUT);
     }
 
 
-    public boolean searchNews(String tags) {
-        String titleAddedNews = selectTitleFirstNews();
+    public boolean searchNews() {
+        String titleNews = selectTitleFirstNewsInArchive();
 
-        if(!titleAddedNews.equals(titlePublishedNews)) {
-            titlePublishedNews = titleAddedNews;
+        if (titleNews.equals(titlePublishedNews)) {
+            return false;
+        }
 
-            linkToNews = selectLinkToNews();
-            try {
-                parsePageNews();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        titlePublishedNews = titleNews;
 
-            title = selectTitle();
-            previewText = selectPreviewText();
+        return true;
+    }
 
-            if(tags.length() < 2 ){
+    public boolean searchNews(@NotNull String tags) {
+        String titleNews = selectTitleFirstNewsInArchive();
+
+        if (titleNews.equals(titlePublishedNews) | !searchTagsInNews(tags)) {
+            return false;
+        }
+
+        titlePublishedNews = titleNews;
+
+        return true;
+    }
+
+    public News getNews() throws IOException {
+        return new News(selectTitle(), selectPreviewText(), selectLinkToNews());
+    }
+
+
+    private boolean searchTagsInNews(String tags) {
+        String title = selectTitle();
+        String text = selectPreviewText();
+
+        for (String tag : tags.split("\\s")) {
+            if (title.contains(tag) || text.contains(tag)) {
                 return true;
-            } else{
-                for(String tag:tags.split("\\s")){
-                    if(title.contains(tag) || previewText.contains(tag)){
-                        return true;
-                    }
-                }
-                return false;
             }
-        } else { return false; }
+        }
 
-
+        return false;
     }
 
-
-
-    private String selectTitleFirstNews(){
+    private String selectTitleFirstNewsInArchive() {
         return pageArchive.selectFirst(FIRST_NEWS_CSS_QUERY).text();
     }
 
     private String selectTitle(){
         return pageNews.select(TITLE_CSS_QUERY).text();
     }
-
     private String selectPreviewText(){
         return pageNews.select(PREVIEW_TEXT_CSS_QUERY).text();
     }
-
     private String selectLinkToNews(){
         return pageArchive.selectFirst(FIRST_NEWS_CSS_QUERY).attr("href");
     }
-
     private String selectLinkToImage(){
         return pageNews.select(LINK_TO_IMAGE_CSS_QUERY).text();
-    }
-
-
-
-    public String getNews() {
-        return title + " \n\n" + previewText  + "\n" + linkToNews;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getPreviewText() {
-        return previewText;
-    }
-
-    public String getLinkToNews() {
-        return linkToNews;
-    }
-
-    public String getUrl() {
-        return url;
     }
 }
